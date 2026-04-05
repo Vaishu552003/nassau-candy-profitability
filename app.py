@@ -27,6 +27,14 @@ def load_prepared():
     return an.add_row_metrics(clean), report
 
 
+def _feedback_video_url() -> str:
+    """Optional Streamlit Cloud secret FEEDBACK_VIDEO_URL (e.g. YouTube/Loom https link)."""
+    try:
+        return str(st.secrets.get("FEEDBACK_VIDEO_URL", "") or "").strip()
+    except Exception:
+        return ""
+
+
 def main():
     st.title("Product line profitability & margin performance")
     st.caption(
@@ -377,6 +385,33 @@ def main():
         )
         fig_map.update_traces(marker=dict(size=12))
         st.plotly_chart(fig_map, use_container_width=True)
+
+    st.divider()
+    with st.expander("Project feedback video — link for your submission", expanded=False):
+        vurl = _feedback_video_url()
+        if vurl:
+            st.video(vurl)
+            st.markdown("**Use this same URL** in your portal’s *Project feedback video* field:")
+            st.code(vurl, language=None)
+        else:
+            st.markdown(
+                """
+Streamlit **cannot generate** a video link by itself. The form needs a normal **`https://`** URL from a
+video host (YouTube, Loom, Google Drive with link sharing, etc.).
+
+**What to do**
+1. Record a short screen demo (this dashboard + what you learned) — e.g. **Win+G** (Xbox Game Bar) or your phone.
+2. Upload to **YouTube** (**Unlisted**) or **loom.com**.
+3. Copy the **`https://…`** link they give you — **paste that** in the *Project feedback video* field.
+
+**Optional — show the video inside this app too:**  
+Streamlit Cloud → **Manage app** → **Secrets** → add:
+
+`FEEDBACK_VIDEO_URL = "https://www.youtube.com/watch?v=YOUR_ID"`
+
+Save; the app will reboot and display your video and the copy-paste link below.
+"""
+            )
 
 
 if __name__ == "__main__":
